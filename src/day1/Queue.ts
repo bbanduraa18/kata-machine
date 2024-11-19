@@ -1,18 +1,51 @@
+interface Node<T> {
+  value: T;
+  next?: Node<T>;
+}
+
+class QueueNode<T> implements Node<T> {
+  constructor(public value: T, public next?: QueueNode<T>) {}
+}
+
 export default class Queue<T> {
-    public length: number;
+  public length: number;
+  private head?: Node<T>;
+  private tail?: Node<T>;
 
-    
+  constructor() {
+    this.head = this.tail = undefined;
+    this.length = 0;
+  }
 
-    constructor() {
+  enqueue(item: T): void {
+    const newNode = new QueueNode(item);
+    this.length++;
+
+    if (!this.tail) {
+      this.tail = this.head = newNode;
+      return;
     }
 
-    enqueue(item: T): void {
+    this.tail.next = newNode;
+    this.tail = newNode;
+  }
+  deque(): T | undefined {
+    if (!this.head) {
+      return undefined;
+    }
 
-}
-    deque(): T | undefined {
+    this.length--;
 
-}
-    peek(): T | undefined {
+    const head = this.head;
+    this.head = head?.next;
 
-}
+    if (!this.head) {
+      this.tail = undefined;
+    }
+
+    return head?.value;
+  }
+  peek(): T | undefined {
+    return this.head?.value;
+  }
 }
