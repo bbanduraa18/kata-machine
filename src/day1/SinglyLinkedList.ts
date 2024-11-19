@@ -29,7 +29,7 @@ export default class SinglyLinkedList<T> {
     this.head = newNode;
   }
   insertAt(item: T, idx: number): void {
-    if (idx < 0 || idx > this.length) {
+    if (idx < 0 || idx >= this.length) {
       return;
     }
 
@@ -95,7 +95,7 @@ export default class SinglyLinkedList<T> {
     return undefined;
   }
   get(idx: number): T | undefined {
-    if (idx < 0 || idx > this.length) {
+    if (idx < 0 || idx >= this.length) {
       return undefined;
     }
 
@@ -109,7 +109,7 @@ export default class SinglyLinkedList<T> {
     return current?.value;
   }
   removeAt(idx: number): T | undefined {
-    if (idx < 0 || idx > this.length) {
+    if (idx < 0 || idx >= this.length) {
       return undefined;
     }
 
