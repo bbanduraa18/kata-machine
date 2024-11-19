@@ -1,27 +1,32 @@
-interface ListNode<T> {
+interface Node<T> {
   value: T;
-  next: LinkedListNode<T> | null;
+  next?: LinkedListNode<T>;
 }
 
-class LinkedListNode<T> implements ListNode<T> {
-  constructor(public value: T, public next: LinkedListNode<T> | null = null) {}
+class LinkedListNode<T> implements Node<T> {
+  constructor(public value: T, public next?: LinkedListNode<T>) {}
 }
 
 export default class SinglyLinkedList<T> {
-  public length: number = 0;
-  private head: LinkedListNode<T> | null = null;
-  private tail: LinkedListNode<T> | null = null;
+  public length: number;
+  private head?: LinkedListNode<T>;
+  private tail?: LinkedListNode<T>;
 
-  constructor() {}
+  constructor() {
+    this.head = this.tail = undefined;
+    this.length = 0;
+  }
 
   prepend(item: T): void {
     const newNode = new LinkedListNode(item, this.head);
-    this.head = newNode;
     this.length++;
 
-    if (!this.tail) {
-      this.tail = newNode;
+    if (!this.head) {
+      this.head = this.tail = newNode;
+      return;
     }
+
+    this.head = newNode;
   }
   insertAt(item: T, idx: number): void {
     if (idx < 0 || idx > this.length) {
@@ -33,60 +38,58 @@ export default class SinglyLinkedList<T> {
       return;
     }
 
-    let current = this.head;
-    let prev = null;
-    for (let i = 0; i < this.length; i++) {
-      if (i === idx) {
-        const newNode = new LinkedListNode(item, current);
-        prev!.next = newNode;
-        this.length++;
-        return;
-      }
+    this.length++;
 
-      prev = current;
-      current = current?.next || null;
+    let i = 0;
+    let current = this.head;
+    while (idx < i) {
+      current = current?.next;
+      i++;
     }
+
+    const newNode = new LinkedListNode(item, current?.next);
+    current!.next = newNode;
   }
   append(item: T): void {
-    if (this.length === 0) {
-      this.prepend(item);
+    const newNode = new LinkedListNode(item);
+    this.length++;
+
+    if (!this.tail) {
+      this.tail = this.head = newNode;
       return;
     }
 
-    const newNode = new LinkedListNode(item);
-    this.tail!.next = newNode;
+    this.tail.next = newNode;
     this.tail = newNode;
-    this.length++;
   }
   remove(item: T): T | undefined {
-    if (this.length === 0) {
+    if (!this.head) {
       return undefined;
     }
 
-    if (this.length === 1 && this.head?.value === item) {
-      this.head = null;
-      this.tail = null;
-      this.length = 0;
+    this.length--;
+
+    if (this.head?.value === item) {
+      this.head = this.head.next;
+
+      if (!this.head) {
+        this.tail = undefined;
+        this.length = 0;
+      }
       return item;
     }
 
     let current = this.head;
-    let prev = null;
+    let prev = undefined;
     for (let i = 0; i < this.length; i++) {
-      if (current?.value === item) {
-        if (current === this.head) {
-          this.head = this.head?.next || null;
-          this.length--;
-          return item;
-        }
-
-        prev!.next = null;
-        this.length--;
-        return item;
+      if (current.value === item) {
+        const removedNode = current;
+        prev!.next = removedNode.next;
+        return removedNode.value;
       }
 
       prev = current;
-      current = current?.next || null;
+      current = current.next as LinkedListNode<T>;
     }
 
     return undefined;
@@ -96,15 +99,14 @@ export default class SinglyLinkedList<T> {
       return undefined;
     }
 
+    let i = 0;
     let current = this.head;
-    for (let i = 0; i < this.length; i++) {
-      if (i === idx) {
-        return current?.value;
-      }
-      current = current!.next;
+    while (i !== idx) {
+      current = current?.next;
+      i++;
     }
 
-    return undefined;
+    return current?.value;
   }
   removeAt(idx: number): T | undefined {
     if (idx < 0 || idx > this.length) {
@@ -113,29 +115,27 @@ export default class SinglyLinkedList<T> {
 
     if (idx === 0) {
       const removedNode = this.head;
-      this.head = this.head?.next || null;
-      this.length--;
+      this.head = this.head?.next;
 
-      if (this.length === 0) {
-        this.tail = null;
+      if (!this.head) {
+        this.length = 0;
+        this.tail = undefined;
       }
 
       return removedNode?.value;
     }
 
-    let current = this.head;
-    let prev = null;
-    for (let i = 0; i < this.length; i++) {
-      if (i === idx) {
-        prev!.next = current?.next || null;
-        this.length--;
-        return current?.value;
-      }
+    this.length--;
 
-      prev = current;
-      current = current?.next || null;
+    let i = 1;
+    let current = this.head;
+    while (i < idx) {
+      current = current?.next;
+      i++;
     }
 
-    return undefined;
+    const removedNode = current?.next;
+    current!.next = removedNode?.next;
+    return removedNode?.value;
   }
 }
